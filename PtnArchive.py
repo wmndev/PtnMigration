@@ -15,10 +15,10 @@ def home():
 def showToolForm():
 
     # ---------Tool initial Settings ------
-    connections.loadSettings()
+    result = connections.loadSettings()
     # -------------------------------------
 
-    return render_template("toolForm.html", owners=getAllOwners())
+    return render_template("toolForm.html", owners = result['owners'])
 
 
 @app.route('/startTool', methods=['POST'])
@@ -26,8 +26,6 @@ def startTool():
     _query = request.form['selectQuery']
 
 
-def getAllOwners():
-    return ["HR4_PROD", "HR5_UAT", "TRM_JPMC"]  # get all owners list
 
 
 if __name__ == '__main__':
