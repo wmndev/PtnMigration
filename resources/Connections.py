@@ -4,15 +4,26 @@ import os
 import cx_Oracle
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+LAST_ID_COPIED_COL_NAME = 'LAST_ID_COPIED'
+OWNER_COL_NAME = 'OWNER_NAME'
+RESOURCE_COL_NAME = 'RESOURCE_NAME'
+
 _query = 'select * from ITAYW1_TOP1_MS.PITON'
 
+"""[{'col1': val1, 'col2': 'val2', 'colX': 'valX'}, {...}, {'...'}] """
+def parseTuplesFronCursor(_resultSet):
+    columns = [i[0] for i in _resultSet.description]
+    return [dict(zip(columns, row)) for row in _resultSet]
 
-def parseData(_resultSet):
-    returnedData = dict()
-    for row in _resultSet:
 
+def parseToReturnObj(tuples):
+    owners = []
 
+    for tup in tuples:
+        owners.append(tup[OWNER_COL_NAME])
 
+    return {'owners' : owners}
 
 def loadSettings():
     config = ConfigParser.ConfigParser()
@@ -23,8 +34,9 @@ def loadSettings():
     connection = getPitonConnection(config)
     try:
         _resultSet = loadPitonData(connection)
-        data = parseData(_resultSet)
+        tuples = parseTuplesFronCursor(_resultSet)
 
+        return parseToReturnObj(tuples)
 
     except:
         print 'exception occurred'
@@ -36,11 +48,7 @@ def loadSettings():
 def loadPitonData(connection):
     cursor = connection.cursor()
     cursor.execute(_query)
-
-    for row in cursor:
-        print row
-
-    return ['f', 'g']
+    return cursor
 
 
 def getPitonConnection(config):
